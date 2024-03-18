@@ -11,12 +11,11 @@ function utils_module.getTotalSupply()
         totalSupply = totalSupply + balance
     end
 
-    -- Sum stakes and votes from proposals_module.proposals
-    for _, userProposals in pairs(proposals_module.proposals) do
-        for _, proposal in pairs(userProposals) do
-            totalSupply = totalSupply + proposal.Stake
-
-            totalSupply = totalSupply + (proposal.Votes.yay or 0) + (proposal.Votes.nay or 0)
+    -- Iterate over each proposal in proposals_module.proposals
+    for _, proposal in pairs(proposals_module.proposals) do
+        -- Iterate over each voter's votes within the proposal
+        for _, voterVotes in pairs(proposal.votes) do
+            totalSupply = totalSupply + (tonumber(voterVotes.yay) or 0) + (tonumber(voterVotes.nay) or 0)
         end
     end
 
