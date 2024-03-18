@@ -64,9 +64,7 @@ function proposals_module.initiateProposal(msg)
 
     table.insert(proposals_module.proposals[msg.id], proposal)
 
-    ao.send({ Target = msg.From, Data = "Successfully created proposal " .. msg.title .. " with an id of " .. msg.id })
-
-    -- Add an announcement here
+    utils_module.announce("New proposal with id " .. proposal.id .. " was created by " .. proposal.author)
 end
 
 --[[
@@ -146,10 +144,10 @@ function proposals_module.evaluateProposals(currentBlock)
                 -- Check if total yay votes are equal to or greater than requiredVotes
                 if totalYayVotes >= requiredVotes then
                     proposal.status = "accepted"
-                    -- add an announcement here
+                    utils_module.announce("Proposal " .. proposal.id .. " has passed!!")
                 else
                     proposal.status = "declined"
-                    -- add an announcement here
+                    utils_module.announce("Proposal " .. proposal.id .. " has failed.")
                 end
 
                 -- Clear the vote record after processing

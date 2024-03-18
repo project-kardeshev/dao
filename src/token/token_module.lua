@@ -2,6 +2,7 @@
 local bint = require('.bint')(256)
 local ao = require('ao')
 local json = require('json')
+local utils_module = require('utils_module')
 
 local token_module = {}
 
@@ -126,6 +127,17 @@ function token_module.Mint(msg)
     local prevBalance = tonumber(token_module.Balances[msg.Sender]) or 0
     token_module.Balances[msg.Sender] = tostring(math.floor(prevBalance + actualAmount))
     print("Minted " .. tostring(actualAmount) .. " to " .. msg.Sender)
+    local isAlreadySubscriber = false
+    for _, subscriber in ipairs(utils_module.Subscribers) do
+        if subscriber == msg.Sender then
+            isAlreadySubscriber = true
+            break
+        end
+    end
+
+    if not isAlreadySubscriber then
+        table.insert(utils_module.Subscribers, msg.Sender)
+    end
     ao.send({Target = msg.Sender, Data = "Successfully Minted " .. actualAmount})
   end
 
