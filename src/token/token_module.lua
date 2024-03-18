@@ -10,7 +10,6 @@ token_module.Balances = token_module.Balances or { [ao.id] = 0 }
 token_module.Name = 'Kardeshev'
 token_module.Ticker = 'KARD'
 token_module.Denomination = 1
-token_module.MaxMint = 10000
 token_module.CRED = "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
 
 -- Handler functions
@@ -123,18 +122,13 @@ end
 function token_module.Mint(msg)
     local requestedAmount = tonumber(msg.Quantity)
     local actualAmount = requestedAmount
-    local Minter = token_module.Balances[msg.Sender]
-    -- if over limit refund difference
-    if (Minter.minted + requestedAmount) > token_module.MaxMint then
-      actualAmount = (Minter.minted + requestedAmount) - token_module.MaxMint
-      refundAmount = requestedAmount - actualAmount
-      ao.send({Target = token_module.CRED, Action = "Transfer", Recipient = msg.Sender, Quantity = tostring(refundAmount)})
-    end
     assert(type(token_module.Balances) == "table", "Balances not found!")
     local prevBalance = tonumber(token_module.Balances[msg.Sender]) or 0
     token_module.Balances[msg.Sender] = tostring(math.floor(prevBalance + actualAmount))
     print("Minted " .. tostring(actualAmount) .. " to " .. msg.Sender)
     ao.send({Target = msg.Sender, Data = "Successfully Minted " .. actualAmount})
   end
+
+
 
 return token_module
