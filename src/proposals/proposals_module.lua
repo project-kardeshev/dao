@@ -160,6 +160,15 @@ function proposals_module.evaluateProposals(currentBlock)
     end
 end
 
+function proposals_module.getProposals(msg)
+
+    if msg.Proposal then 
+        return proposals_module.proposals[msg.Proposal]
+    else
+        return proposals_module.proposals
+    end
+end
+
 
 
 return proposals_module
