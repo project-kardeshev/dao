@@ -73,9 +73,14 @@ Handlers.add(
     function(msg)
         print("This handler was triggered")
         proposals_module.initiateProposal(msg)
-        proposals_module.evaluateProposals(msg["Block-Height"])
+
+        local status, err = pcall(proposals_module.evaluateProposals, msg["Block-Height"])
+        if not status then
+            print("Error in evaluateProposals: " .. err)
+        end
     end
 )
+
 
 Handlers.add(
     "Vote",

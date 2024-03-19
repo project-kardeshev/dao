@@ -45,13 +45,16 @@ function proposals_module.initiateProposal(msg)
         description = msg.Description,
         proposedBlock = msg['Block-Height'],
         deadline = msg['Block-Height'] + 7200,
-        votes = {
-            yay = tonumber(msg.Stake),
-            nay = 0
-        },
+        votes = {},  -- Initialize votes as an empty table
         status = "active"
-
     }
+    
+    -- Now set the first vote using msg.From as a key
+    proposal.votes[msg.From] = {
+        yay = tonumber(msg.Stake),
+        nay = 0
+    }
+    
 
     proposals_module.proposals[msg.Id] = proposal
 
@@ -128,10 +131,14 @@ function proposals_module.evaluateProposals(currentBlock)
             if next(proposal.votes) ~= nil then  -- next returns nil if table is empty
                 -- Iterate over every vote
                 for voterId, votes in pairs(proposal.votes) do
-                    totalYayVotes = totalYayVotes + (votes.yay or 0)
+                    if type(votes) == "table" then
+                        totalYayVotes = totalYayVotes + (tonumber(votes.yay) or 0)
 
-                    -- Refund all voter tokens
-                    token_module.Balances[voterId] = (token_module.Balances[voterId] or 0) + (votes.yay or 0) + (votes.nay or 0)
+                        -- Refund all voter tokens
+                        token_module.Balances[voterId] = (tonumber(token_module.Balances[voterId]) or 0) + (tonumber(votes.yay) or 0) + (tonumber(votes.nay) or 0)
+                    else
+                        print("Unexpected data type for votes of voterId " .. voterId .. ": " .. type(votes))
+                    end
                 end
 
                 -- Check if total yay votes are equal to or greater than requiredVotes
@@ -147,12 +154,14 @@ function proposals_module.evaluateProposals(currentBlock)
                 proposal.votes = {}
             else
                 -- If proposal.votes is empty, no action is needed
+                print("No votes found for proposal " .. proposal.id)
             end
         end
         -- If current block is lower than proposal.deadline, no action is needed
     end
     print("Evaluation complete")
 end
+
 
 -- Users can specify Proposal if they want a specific one, otherwise all are returned.
 
