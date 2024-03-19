@@ -1,7 +1,7 @@
-local token_module = require("token_module")
-local utils_module = require("utils_module")
+-- local token_module = require("token_module")
+-- local utils_module = require("utils_module")
 
-local proposals_module = proposals_module or {}
+proposals_module = proposals_module or {}
 
 proposals_module.proposals = proposals_module.proposals or {}
 
@@ -40,7 +40,7 @@ function proposals_module.initiateProposal(msg)
     )
     assert(
         (type(msg.Stake) == "number" and msg.Stake == math.floor(msg.Stake)) or
-        (tonumber(msg.Stake) and tonumber(msg.Stake) == math.floor(tonumber(msg.Stake))),
+        (msg.Stake == math.floor(msg.Stake)),
         "Stake must be an integer or convertible to an integer"
     )
 
@@ -89,7 +89,7 @@ function proposals_module.vote(msg)
 
     assert(
         (type(msg.Stake) == "number" and msg.Stake == math.floor(msg.Stake)) or
-        (tonumber(msg.Stake) and tonumber(msg.Stake) == math.floor(tonumber(msg.Stake))),
+        (msg.Stake == math.floor(msg.Stake)),
         "Stake must be an integer or convertible to an integer"
     )
     assert(token_module.Balances[msg.From] >= tonumber(msg.Stake), "Cannot stake more tokens than owned")
@@ -164,7 +164,7 @@ end
 
 function proposals_module.getProposals(msg)
 
-    if msg.Proposal then 
+    if msg.Proposal then
         return proposals_module.proposals[msg.Proposal]
     else
         return proposals_module.proposals

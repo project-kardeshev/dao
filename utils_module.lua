@@ -1,7 +1,8 @@
-local token_module = require("token_module")
-local proposals_module = require('proposals_module')
+-- local token_module = require("token_module")
+-- local proposals_module = require('proposals_module')
+local ao = require("ao")
 
-local utils_module = {}
+utils_module = utils_module or {}
 utils_module.Subscribers = utils_module.Subscribers or {}
 
 function utils_module.getTotalSupply()
