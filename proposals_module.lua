@@ -29,6 +29,7 @@ Send({
 ]]
 
 function proposals_module.initiateProposal(msg)
+    print(msg.From .. " is proposing a proposal.")
     local proposerTokens = token_module.Balances[msg.From]
     assert(msg.Stake, "Must stake tokens with proposal")
     assert(msg.Title, "Must provide a name")
@@ -80,6 +81,7 @@ end
 ]]
 
 function proposals_module.vote(msg)
+    print(msg.From .. " is trying to vote")
     assert(msg.Stake, "Must stake tokens with vote")
     assert(msg.ProposalId, "Must provide a name")
     assert(msg.Vote, "Must provide a vote")
@@ -123,6 +125,7 @@ end
 
 
 function proposals_module.evaluateProposals(currentBlock)
+    print("Starting proposal evaluation")
     local totalSupply = utils_module.getTotalSupply()
     local requiredVotes = math.floor(totalSupply / 2) + 1
 
@@ -158,17 +161,22 @@ function proposals_module.evaluateProposals(currentBlock)
         end
         -- If current block is lower than proposal.deadline, no action is needed
     end
+    print("Evaluation complete")
 end
 
 -- Users can specify Proposal if they want a specific one, otherwise all are returned.
 
 function proposals_module.getProposals(msg)
+    print("Getting proposals")
 
     if msg.Proposal then
         return proposals_module.proposals[msg.Proposal]
     else
+        print("proposals getted")
         return proposals_module.proposals
+         
     end
+   
 end
 
 
