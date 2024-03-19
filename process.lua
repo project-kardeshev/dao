@@ -13,7 +13,7 @@ Handlers.add(
 )
 
 Handlers.add(
-    "TokenBalance",
+    "Balance",
     Handlers.utils.hasMatchingTag("Action", "Balance"),
     function(msg)
         token_module.balanceHandler(msg)
@@ -68,7 +68,7 @@ Handlers.add(
 -- Proposal handlers
 
 Handlers.add(
-    "InitiateProposal",
+    "Propose",
     Handlers.utils.hasMatchingTag("Action", "Propose"),
     function(msg)
         print("This handler was triggered")
