@@ -6,7 +6,7 @@ local utils_module = require(".utils_module")
 -- Token Handlers
 Handlers.add(
     "getTokenInfo",
-    Handlers.utils.hasMatchingTag("Action", "TokenInfo"),
+    Handlers.utils.hasMatchingTag("Action", "Info"),
     function(msg)
         token_module.infoHandler(msg)
     end
