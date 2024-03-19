@@ -14,6 +14,7 @@ token_module.Name = 'Kardeshev'
 token_module.Ticker = 'KARD'
 token_module.Denomination = 1
 token_module.CRED = "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
+token_module.Logo = "SkVrD71Eannvjj5uzXfDEs6WzcwnkYRQgIO7g7PvFsg"
 
 local Colors = {
   red = "\27[31m",
