@@ -2,7 +2,7 @@
 local bint = require('.bint')(256)
 local ao = require('ao')
 local json = require('json')
-local utils_module = require('../utils_module')
+local utils_module = require('utils_module')
 
 token_module = token_module or {}
 

@@ -1,5 +1,5 @@
-local token_module = require("../token/token_module")
-local utils_module = require("../utils_module")
+local token_module = require("token_module")
+local utils_module = require("utils_module")
 
 local proposals_module = proposals_module or {}
 
