@@ -1,7 +1,7 @@
-local token_module = require("token_module")
-local utils_module = require("utils_module")
+local token_module = require("../token/token_module")
+local utils_module = require("../utils_module")
 
-proposals_module = proposals_module or {}
+local proposals_module = proposals_module or {}
 
 proposals_module.proposals = proposals_module.proposals or {}
 

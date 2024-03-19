@@ -1,5 +1,5 @@
-local token_module = require('token_module')
-local proposals_module = require("proposals_module")
+local token_module = require('token/token_module')
+local proposals_module = require("proposals/proposals_module")
 local utils_module = require("utils_module")
 
 
@@ -91,5 +91,23 @@ Handlers.add(
     function(msg)
         proposals_module.evaluateProposals(msg["Block-Height"])
         proposals_module.getProposals(msg)
+    end
+)
+
+-- Subscription Handlers
+
+Handlers.add(
+    "Subscribe",
+    Handlers.utils.hasMatchingTag("Action", "Subscribe"),
+    function(msg)
+        utils_module.addSubscriber(msg)
+    end
+)
+
+Handlers.add(
+    "Unsubscribe",
+    Handlers.utils.hasMatchingTag("Action", "Unsubscribe"),
+    function(msg)
+        utils_module.removeSubscriber(msg)
     end
 )
