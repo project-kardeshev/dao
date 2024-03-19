@@ -67,3 +67,29 @@ Handlers.add(
 
 -- Proposal handlers
 
+Handlers.add(
+    "InitiateProposal",
+    Handlers.utils.hasMatchingTag("Action", "Propose"),
+    function(msg)
+        proposals_module.initiateProposal(msg)
+        proposals_module.evaluateProposals(msg["Block-Height"])
+    end
+)
+
+Handlers.add(
+    "Vote",
+    Handlers.utils.hasMatchingTag("Action", "Vote"),
+    function(msg)
+        proposals_module.vote(msg)
+        proposals_module.evaluateProposals(msg["Block-Height"])
+    end
+)
+
+Handlers.add(
+    "GetProposals",
+    Handlers.utils.hasMatchingTag("Action", "GetProposals"),
+    function(msg)
+        proposals_module.evaluateProposals(msg["Block-Height"])
+        proposals_module.getProposals(msg)
+    end
+)

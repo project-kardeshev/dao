@@ -160,6 +160,8 @@ function proposals_module.evaluateProposals(currentBlock)
     end
 end
 
+-- Users can specify Proposal if they want a specific one, otherwise all are returned.
+
 function proposals_module.getProposals(msg)
 
     if msg.Proposal then 
