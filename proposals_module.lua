@@ -1,5 +1,6 @@
 -- local token_module = require("token_module")
 -- local utils_module = require("utils_module")
+local json = require("json")
 
 proposals_module = proposals_module or {}
 
@@ -169,15 +170,23 @@ function proposals_module.getProposals(msg)
     print("Getting proposals")
 
     if msg.Proposal then
-        return proposals_module.proposals[msg.Proposal]
+        local proposalData = proposals_module.proposals[msg.Proposal]
+        if proposalData then
+            ao.send({
+                Target = msg.From,
+                Data = json.encode(proposalData)
+            })
+        else
+            print("Proposal not found")
+        end
     else
-        print("proposals getted")
-        return proposals_module.proposals
-         
+        print("Sending all proposals")
+        ao.send({
+            Target = msg.From,
+            Data = json.encode(proposals_module.proposals)
+        })
     end
-   
 end
-
 
 
 return proposals_module
