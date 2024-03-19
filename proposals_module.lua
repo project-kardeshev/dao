@@ -83,12 +83,7 @@ function proposals_module.vote(msg)
 
     local targetProposal = proposals_module.proposals[msg.ProposalId]
 
-    assert(
-        (type(msg.Stake) == "number" and msg.Stake == math.floor(msg.Stake)) or
-        (msg.Stake == math.floor(msg.Stake)),
-        "Stake must be an integer or convertible to an integer"
-    )
-    assert(token_module.Balances[msg.From] >= tonumber(msg.Stake), "Cannot stake more tokens than owned")
+    assert(tonumber(token_module.Balances[msg.From]) >= tonumber(msg.Stake), "Cannot stake more tokens than owned")
     assert(
         string.lower(msg.Vote) == "yay" or
         string.lower(msg.Vote) == "yes" or
@@ -98,22 +93,22 @@ function proposals_module.vote(msg)
         string.lower(msg.Vote) == "n",
         "vote not recognized, use 'yay', 'yes', 'y', 'nay', 'no', 'n'"
     )
-    assert(msg['Block-Height'] < targetProposal.FinalizeBlock, "voting for this proposal has closed")
+    assert(msg['Block-Height'] < targetProposal.deadline, "voting for this proposal has closed")
 
 
-    local voterTokens = token_module.Balances[msg.From]
+    local voterTokens = tonumber(token_module.Balances[msg.From])
     voterTokens = voterTokens - tonumber(msg.Stake)
     token_module.Balances[msg.From] = voterTokens
 
-    if not targetProposal.Votes[msg.From] then
-        targetProposal.Votes[msg.From] = { yay = 0, nay = 0 }
+    if not targetProposal.votes[msg.From] then
+        targetProposal.votes[msg.From] = { yay = 0, nay = 0 }
     end
 
     local voteType = string.lower(msg.Vote)
     if voteType == "yay" or voteType == "yes" or voteType == "y" then
-        targetProposal.Votes[msg.From].yay = targetProposal.Votes[msg.From].yay + tonumber(msg.Stake)
+        targetProposal.votes[msg.From].yay = targetProposal.votes[msg.From].yay + tonumber(msg.Stake)
     elseif voteType == "nay" or voteType == "no" or voteType == "n" then
-        targetProposal.Votes[msg.From].nay = targetProposal.Votes[msg.From].nay + tonumber(msg.Stake)
+        targetProposal.votes[msg.From].nay = targetProposal.votes[msg.From].nay + tonumber(msg.Stake)
     end
 end
 

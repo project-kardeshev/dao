@@ -86,10 +86,18 @@ Handlers.add(
     "Vote",
     Handlers.utils.hasMatchingTag("Action", "Vote"),
     function(msg)
-        proposals_module.vote(msg)
-        proposals_module.evaluateProposals(msg["Block-Height"])
+        local statusVote, errVote = pcall(proposals_module.vote, msg)
+        if not statusVote then
+            print("Error in voting: " .. errVote)
+        end
+
+        local statusEvaluate, errEvaluate = pcall(proposals_module.evaluateProposals, msg["Block-Height"])
+        if not statusEvaluate then
+            print("Error in evaluating proposals: " .. errEvaluate)
+        end
     end
 )
+
 
 Handlers.add(
     "GetProposals",
