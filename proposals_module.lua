@@ -26,6 +26,7 @@ Send({
     Stake = 500 -- amount of tokens to stake as a yes vote
     Title = "name" -- a name for the proposal to track multiple proposals from same user
     Description = -- description of proposal, can be used
+    Meme-Frame-Id = txId
 })
 ]]
 
@@ -35,6 +36,14 @@ function proposals_module.initiateProposal(msg)
     assert(msg.Stake, "Must stake tokens with proposal")
     assert(msg.Title, "Must provide a name")
     assert(proposerTokens >= tonumber(msg.Stake), "Cannot stake more tokens than are held")
+    assert(
+    msg.MemeFrameId == nil or 
+    (type(msg.MemeFrameId) == "string" and
+    #msg.MemeFrameId == 43 and
+    msg.MemeFrameId:match("^[A-Za-z0-9_-]+$") ~= nil),
+    "MemeFrameId must be nil or a valid Arweave transaction ID"
+)
+
 
     proposerTokens = proposerTokens - tonumber(msg.Stake)
     token_module.Balances[msg.From] = proposerTokens
@@ -47,7 +56,8 @@ function proposals_module.initiateProposal(msg)
         proposedBlock = msg['Block-Height'],
         deadline = msg['Block-Height'] + 7200,
         votes = {},  -- Initialize votes as an empty table
-        status = "active"
+        status = "active",
+        MEMEFRAME_ID = msg.MemeFrameId or nil
     }
     
     -- Now set the first vote using msg.From as a key
