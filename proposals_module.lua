@@ -38,8 +38,8 @@ function proposals_module.initiateProposal(msg)
     proposerTokens = proposerTokens - tonumber(msg.Stake)
     token_module.Balances[msg.From] = proposerTokens
 
-    proposal = {
-        id = msg.id,
+    local proposal = {
+        id = msg.Id,
         author = msg.From,
         title = msg.Title,
         description = msg.Description,
@@ -53,7 +53,7 @@ function proposals_module.initiateProposal(msg)
 
     }
 
-    table.insert(proposals_module.proposals[msg.id], proposal)
+    proposals_module.proposals[msg.Id] = proposal
 
     utils_module.announce("New proposal with id " .. proposal.id .. " was created by " .. proposal.author)
 end
