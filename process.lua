@@ -14,7 +14,7 @@ Handlers.add(
 
 Handlers.add(
     "TokenBalance",
-    Handlers.utils.hasMatchingTag("Action", "TokenBalance"),
+    Handlers.utils.hasMatchingTag("Action", "Balance"),
     function(msg)
         token_module.balanceHandler(msg)
     end
@@ -39,7 +39,7 @@ Handlers.add(
 Handlers.add(
     "Mint",
     function(msg)
-        if msg.Data == "Credit-Notice" and msg.Tags['From-Process'] == "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc" then
+        if msg.Action == "Credit-Notice" and msg.Tags['From-Process'] == "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc" then
             return true
         else
             return false
@@ -71,6 +71,7 @@ Handlers.add(
     "InitiateProposal",
     Handlers.utils.hasMatchingTag("Action", "Propose"),
     function(msg)
+        print("This handler was triggered")
         proposals_module.initiateProposal(msg)
         proposals_module.evaluateProposals(msg["Block-Height"])
     end

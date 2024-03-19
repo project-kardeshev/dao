@@ -30,20 +30,10 @@ Send({
 
 function proposals_module.initiateProposal(msg)
     print(msg.From .. " is proposing a proposal.")
-    local proposerTokens = token_module.Balances[msg.From]
+    local proposerTokens = tonumber(token_module.Balances[msg.From])
     assert(msg.Stake, "Must stake tokens with proposal")
     assert(msg.Title, "Must provide a name")
-    assert(proposerTokens >= msg.Stake, "Cannot stake more tokens than are held")
-    assert(
-        not proposals_module[msg.From] or
-        not any(proposals_module[msg.From], function(item) return item.Name == msg.ProposalName end),
-        "The propoposal must have a unique name"
-    )
-    assert(
-        (type(msg.Stake) == "number" and msg.Stake == math.floor(msg.Stake)) or
-        (msg.Stake == math.floor(msg.Stake)),
-        "Stake must be an integer or convertible to an integer"
-    )
+    assert(proposerTokens >= tonumber(msg.Stake), "Cannot stake more tokens than are held")
 
     proposerTokens = proposerTokens - tonumber(msg.Stake)
     token_module.Balances[msg.From] = proposerTokens

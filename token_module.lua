@@ -37,13 +37,16 @@ function token_module.infoHandler(msg)
 end
 
 function token_module.balanceHandler(msg)
+  print("Balance Handler started")
   local bal = '0'
 
+  if (msg.Owner and token_module.Balances[msg.Owner]) then
+    bal = tostring(token_module.Balances[msg.Owner])
   -- If not Recipient is provided, then return the Senders balance
-  if (msg.Tags.Recipient and token_module.Balances[msg.Tags.Recipient]) then
-    bal = token_module.Balances[msg.Tags.Recipient]
+  elseif (msg.Tags.Recipient and token_module.Balances[msg.Tags.Recipient]) then
+    bal = tostring(token_module.Balances[msg.Tags.Recipient])
   elseif token_module.Balances[msg.From] then
-    bal = token_module.Balances[msg.From]
+    bal = tostring(token_module.Balances[msg.From])
   end
 
   ao.send({
@@ -53,9 +56,11 @@ function token_module.balanceHandler(msg)
     Account = msg.Tags.Recipient or msg.From,
     Data = bal
   })
+  print("Balance message sent")
 end
 
 function token_module.balancesHandler(msg)
+  print("Balances handler")
   ao.send({ Target = msg.From, Data = json.encode(token_module.Balances) })
 end
 
@@ -114,7 +119,8 @@ function token_module.transferHandler(msg)
 end
 
 function token_module.selfMintHandler(msg)
-  assert(type(msg.Quantity) == 'string', 'Quantity is required!')
+  print("Starting selfMint")
+  -- assert(type(msg.Quantity) == 'string', 'Quantity is required!')
   assert(tonumber(msg.Quantity) > 0, 'Quantity must be greater than 0')
 
 
@@ -124,7 +130,7 @@ function token_module.selfMintHandler(msg)
     -- Add tokens to the token pool, according to Quantity
     local fromBalance = tonumber(token_module.Balances[msg.From]) or 0
     local quantity = tonumber(msg.Quantity) or 0
-    token_module.Balances[msg.From] = tostring(fromBalance + quantity)
+    token_module.Balances[msg.From] = fromBalance + quantity
 
     ao.send({
       Target = msg.From,
@@ -141,11 +147,12 @@ function token_module.selfMintHandler(msg)
 end
 
 function token_module.Mint(msg)
+  print("Starting Mint")
   local requestedAmount = tonumber(msg.Quantity)
   local actualAmount = requestedAmount
   assert(type(token_module.Balances) == "table", "Balances not found!")
   local prevBalance = tonumber(token_module.Balances[msg.Sender]) or 0
-  token_module.Balances[msg.Sender] = tostring(math.floor(prevBalance + actualAmount))
+  token_module.Balances[msg.Sender] = math.floor(prevBalance + actualAmount)
   print("Minted " .. tostring(actualAmount) .. " to " .. msg.Sender)
   local isAlreadySubscriber = false
   for _, subscriber in ipairs(utils_module.Subscribers) do
