@@ -134,7 +134,6 @@ function proposals_module.evaluateProposals(currentBlock)
     table.sort(sortedProposals, function(a, b)
         return a.deadline < b.deadline
     end)
-    print("Sorted proposals" .. json.encode(sortedProposals))
 
     for _, proposal in pairs(sortedProposals) do
         if proposal.status == "accepted" or proposal.status == "declined" then

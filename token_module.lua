@@ -32,7 +32,8 @@ function token_module.infoHandler(msg)
     Target = msg.From,
     Name = token_module.Name,
     Ticker = token_module.Ticker,
-    Denomination = tostring(token_module.Denomination)
+    Denomination = tostring(token_module.Denomination),
+    MemeframeId = MEMEFRAME_ID
   })
 end
 
@@ -42,7 +43,7 @@ function token_module.balanceHandler(msg)
 
   if (msg.Owner and token_module.Balances[msg.Owner]) then
     bal = tostring(token_module.Balances[msg.Owner])
-  -- If not Recipient is provided, then return the Senders balance
+    -- If not Recipient is provided, then return the Senders balance
   elseif (msg.Tags.Recipient and token_module.Balances[msg.Tags.Recipient]) then
     bal = tostring(token_module.Balances[msg.Tags.Recipient])
   elseif token_module.Balances[msg.From] then
