@@ -37,12 +37,12 @@ function proposals_module.initiateProposal(msg)
     assert(msg.Title, "Must provide a name")
     assert(proposerTokens >= tonumber(msg.Stake), "Cannot stake more tokens than are held")
     assert(
-    msg.MemeFrameId == nil or 
-    (type(msg.MemeFrameId) == "string" and
-    #msg.MemeFrameId == 43 and
-    msg.MemeFrameId:match("^[A-Za-z0-9_-]+$") ~= nil),
-    "MemeFrameId must be nil or a valid Arweave transaction ID"
-)
+        msg.MemeFrameId == nil or
+        (type(msg.MemeFrameId) == "string" and
+            #msg.MemeFrameId == 43 and
+            msg.MemeFrameId:match("^[A-Za-z0-9_-]+$") ~= nil),
+        "MemeFrameId must be nil or a valid Arweave transaction ID"
+    )
 
 
     proposerTokens = proposerTokens - tonumber(msg.Stake)
@@ -55,17 +55,17 @@ function proposals_module.initiateProposal(msg)
         description = msg.Description,
         proposedBlock = msg['Block-Height'],
         deadline = msg['Block-Height'] + 7200,
-        votes = {},  -- Initialize votes as an empty table
+        votes = {}, -- Initialize votes as an empty table
         status = "active",
         MEMEFRAME_ID = msg.MemeFrameId or nil
     }
-    
+
     -- Now set the first vote using msg.From as a key
     proposal.votes[msg.From] = {
         yay = tonumber(msg.Stake),
         nay = 0
     }
-    
+
 
     proposals_module.proposals[msg.Id] = proposal
 
@@ -122,26 +122,38 @@ function proposals_module.vote(msg)
     end
 end
 
-
 function proposals_module.evaluateProposals(currentBlock)
     print("Starting proposal evaluation")
     local totalSupply = utils_module.getTotalSupply()
     local requiredVotes = math.floor(totalSupply / 2) + 1
-
+    -- we need to evaluate the accepted proposals in order of their deadline, first completed first evaluated
+    local sortedProposals = {}
     for _, proposal in pairs(proposals_module.proposals) do
+        table.insert(sortedProposals, proposal)
+    end
+    table.sort(sortedProposals, function(a, b)
+        return a.deadline < b.deadline
+    end)
+    print("Sorted proposals" .. json.encode(sortedProposals))
+
+    for _, proposal in pairs(sortedProposals) do
+        if proposal.status == "accepted" or proposal.status == "declined" then
+            goto continue
+        end
         -- Check if the current block height is equal to or higher than proposal.deadline
         if currentBlock >= proposal.deadline then
             local totalYayVotes = 0
 
             -- Check if proposal.votes has contents
-            if next(proposal.votes) ~= nil then  -- next returns nil if table is empty
+            if next(proposal.votes) ~= nil then -- next returns nil if table is empty
                 -- Iterate over every vote
                 for voterId, votes in pairs(proposal.votes) do
                     if type(votes) == "table" then
                         totalYayVotes = totalYayVotes + (tonumber(votes.yay) or 0)
 
                         -- Refund all voter tokens
-                        token_module.Balances[voterId] = (tonumber(token_module.Balances[voterId]) or 0) + (tonumber(votes.yay) or 0) + (tonumber(votes.nay) or 0)
+                        token_module.Balances[voterId] = (tonumber(token_module.Balances[voterId]) or 0) +
+                            (tonumber(votes.yay) or 0) + (tonumber(votes.nay) or 0)
                     else
                         print("Unexpected data type for votes of voterId " .. voterId .. ": " .. type(votes))
                     end
@@ -151,6 +163,11 @@ function proposals_module.evaluateProposals(currentBlock)
                 if totalYayVotes >= requiredVotes then
                     proposal.status = "accepted"
                     utils_module.announce("Proposal " .. proposal.id .. " has passed!!")
+                    if proposal.MEMEFRAME_ID then
+                        utils_module.announce("MemeFrame ID: " ..
+                            proposal.MEMEFRAME_ID .. " has been accepted and set as the new MemeFrame.")
+                        MEMEFRAME_ID = proposal.MEMEFRAME_ID
+                    end
                 else
                     proposal.status = "declined"
                     utils_module.announce("Proposal " .. proposal.id .. " has failed.")
@@ -164,10 +181,10 @@ function proposals_module.evaluateProposals(currentBlock)
             end
         end
         -- If current block is lower than proposal.deadline, no action is needed
+        ::continue::
     end
     print("Evaluation complete")
 end
-
 
 -- Users can specify Proposal if they want a specific one, otherwise all are returned.
 
@@ -192,6 +209,5 @@ function proposals_module.getProposals(msg)
         })
     end
 end
-
 
 return proposals_module

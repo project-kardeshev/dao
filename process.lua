@@ -2,7 +2,7 @@ local token_module = require(".token_module")
 local proposals_module = require(".proposals_module")
 local utils_module = require(".utils_module")
 
-
+local MEMEFRAME_ID = MEMEFRAME_ID or ""
 -- Token Handlers
 Handlers.add(
     "getTokenInfo",
