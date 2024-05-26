@@ -97,7 +97,8 @@ function Token_module.transferHandler(msg)
         Quantity = tostring(qty),
         Data = Colors.gray ..
             "You transferred " ..
-            Colors.blue .. msg.Quantity .. Colors.gray .. " to " .. Colors.green .. msg.Recipient .. Colors.reset
+            Colors.blue .. msg.Quantity .. Colors.gray .. " to " .. Colors.green .. msg.Recipient .. Colors.reset,
+        Note = msg.Note or nil
       })
       -- Send Credit-Notice to the Recipient
       ao.send({
@@ -107,8 +108,10 @@ function Token_module.transferHandler(msg)
         Quantity = tostring(qty),
         Data = Colors.gray ..
             "You received " ..
-            Colors.blue .. msg.Quantity .. Colors.gray .. " from " .. Colors.green .. msg.Recipient .. Colors.reset,
-          Note = msg.Note or nil
+            Colors.blue ..
+            qty / 10 ^ Token_module.Denomination ..
+            Colors.gray .. " from " .. Colors.green .. msg.Recipient .. Colors.reset,
+        Note = msg.Note or nil
       })
     end
   else
