@@ -1,10 +1,10 @@
--- local token_module = require("token_module")
--- local utils_module = require("utils_module")
+-- local Token_module = require("Token_module")
+-- local Utils_module = require("Utils_module")
 local json = require("json")
 
-proposals_module = proposals_module or {}
+Proposals_module = Proposals_module or {}
 
-proposals_module.proposals = proposals_module.proposals or {}
+Proposals_module.proposals = Proposals_module.proposals or {}
 
 
 local function any(table, predicate)
@@ -30,9 +30,9 @@ Send({
 })
 ]]
 
-function proposals_module.initiateProposal(msg)
+function Proposals_module.initiateProposal(msg)
     print(msg.From .. " is proposing a proposal.")
-    local proposerTokens = tonumber(token_module.Balances[msg.From])
+    local proposerTokens = tonumber(Token_module.Balances[msg.From])
     assert(msg.Stake, "Must stake tokens with proposal")
     assert(msg.Title, "Must provide a name")
     assert(proposerTokens >= tonumber(msg.Stake), "Cannot stake more tokens than are held")
@@ -46,7 +46,7 @@ function proposals_module.initiateProposal(msg)
 
 
     proposerTokens = proposerTokens - tonumber(msg.Stake)
-    token_module.Balances[msg.From] = proposerTokens
+    Token_module.Balances[msg.From] = proposerTokens
 
     local proposal = {
         id = msg.Id,
@@ -67,9 +67,9 @@ function proposals_module.initiateProposal(msg)
     }
 
 
-    proposals_module.proposals[msg.Id] = proposal
+    Proposals_module.proposals[msg.Id] = proposal
 
-    utils_module.announce("New proposal with id " .. proposal.id .. " was created by " .. proposal.author)
+    Utils_module.announce("New proposal with id " .. proposal.id .. " was created by " .. proposal.author)
 end
 
 --[[
@@ -84,16 +84,16 @@ end
     })
 ]]
 
-function proposals_module.vote(msg)
+function Proposals_module.vote(msg)
     print(msg.From .. " is trying to vote")
     assert(msg.Stake, "Must stake tokens with vote")
     assert(msg.ProposalId, "Must provide a name")
     assert(msg.Vote, "Must provide a vote")
-    assert(proposals_module.proposals[msg.ProposalId], "The proposal does not exist.")
+    assert(Proposals_module.proposals[msg.ProposalId], "The proposal does not exist.")
 
-    local targetProposal = proposals_module.proposals[msg.ProposalId]
+    local targetProposal = Proposals_module.proposals[msg.ProposalId]
 
-    assert(tonumber(token_module.Balances[msg.From]) >= tonumber(msg.Stake), "Cannot stake more tokens than owned")
+    assert(tonumber(Token_module.Balances[msg.From]) >= tonumber(msg.Stake), "Cannot stake more tokens than owned")
     assert(
         string.lower(msg.Vote) == "yay" or
         string.lower(msg.Vote) == "yes" or
@@ -106,9 +106,9 @@ function proposals_module.vote(msg)
     assert(msg['Block-Height'] < targetProposal.deadline, "voting for this proposal has closed")
 
 
-    local voterTokens = tonumber(token_module.Balances[msg.From])
+    local voterTokens = tonumber(Token_module.Balances[msg.From])
     voterTokens = voterTokens - tonumber(msg.Stake)
-    token_module.Balances[msg.From] = voterTokens
+    Token_module.Balances[msg.From] = voterTokens
 
     if not targetProposal.votes[msg.From] then
         targetProposal.votes[msg.From] = { yay = 0, nay = 0 }
@@ -122,13 +122,13 @@ function proposals_module.vote(msg)
     end
 end
 
-function proposals_module.evaluateProposals(currentBlock)
+function Proposals_module.evaluateProposals(currentBlock)
     print("Starting proposal evaluation")
-    local totalSupply = utils_module.getTotalSupply()
+    local totalSupply = Utils_module.getTotalSupply()
     local requiredVotes = math.floor(totalSupply / 2) + 1
     -- we need to evaluate the accepted proposals in order of their deadline, first completed first evaluated
     local sortedProposals = {}
-    for _, proposal in pairs(proposals_module.proposals) do
+    for _, proposal in pairs(Proposals_module.proposals) do
         table.insert(sortedProposals, proposal)
     end
     table.sort(sortedProposals, function(a, b)
@@ -151,7 +151,7 @@ function proposals_module.evaluateProposals(currentBlock)
                         totalYayVotes = totalYayVotes + (tonumber(votes.yay) or 0)
 
                         -- Refund all voter tokens
-                        token_module.Balances[voterId] = (tonumber(token_module.Balances[voterId]) or 0) +
+                        Token_module.Balances[voterId] = (tonumber(Token_module.Balances[voterId]) or 0) +
                             (tonumber(votes.yay) or 0) + (tonumber(votes.nay) or 0)
                     else
                         print("Unexpected data type for votes of voterId " .. voterId .. ": " .. type(votes))
@@ -161,15 +161,15 @@ function proposals_module.evaluateProposals(currentBlock)
                 -- Check if total yay votes are equal to or greater than requiredVotes
                 if totalYayVotes >= requiredVotes then
                     proposal.status = "accepted"
-                    utils_module.announce("Proposal " .. proposal.id .. " has passed!!")
+                    Utils_module.announce("Proposal " .. proposal.id .. " has passed!!")
                     if proposal.MEMEFRAME_ID then
-                        utils_module.announce("MemeFrame ID: " ..
+                        Utils_module.announce("MemeFrame ID: " ..
                             proposal.MEMEFRAME_ID .. " has been accepted and set as the new MemeFrame.")
                         MEMEFRAME_ID = proposal.MEMEFRAME_ID
                     end
                 else
                     proposal.status = "declined"
-                    utils_module.announce("Proposal " .. proposal.id .. " has failed.")
+                    Utils_module.announce("Proposal " .. proposal.id .. " has failed.")
                 end
 
                 -- Clear the vote record after processing
@@ -187,11 +187,11 @@ end
 
 -- Users can specify Proposal if they want a specific one, otherwise all are returned.
 
-function proposals_module.getProposals(msg)
+function Proposals_module.getProposals(msg)
     print("Getting proposals")
 
     if msg.Proposal then
-        local proposalData = proposals_module.proposals[msg.Proposal]
+        local proposalData = Proposals_module.proposals[msg.Proposal]
         if proposalData then
             ao.send({
                 Target = msg.From,
@@ -204,9 +204,9 @@ function proposals_module.getProposals(msg)
         print("Sending all proposals")
         ao.send({
             Target = msg.From,
-            Data = json.encode(proposals_module.proposals)
+            Data = json.encode(Proposals_module.proposals)
         })
     end
 end
 
-return proposals_module
+return Proposals_module
