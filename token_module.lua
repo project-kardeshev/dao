@@ -90,29 +90,36 @@ function Token_module.transferHandler(msg)
     --
     if not msg.Cast then
       -- Send Debit-Notice to the Sender
-      ao.send({
-        Target = msg.From,
-        Action = 'Debit-Notice',
-        Recipient = msg.Recipient,
-        Quantity = tostring(qty),
-        Data = Colors.gray ..
-            "You transferred " ..
-            Colors.blue .. msg.Quantity .. Colors.gray .. " to " .. Colors.green .. msg.Recipient .. Colors.reset,
-        Note = msg.Note or nil
-      })
+local debitNotice =   {Target = msg.From,
+Action = 'Debit-Notice',
+Recipient = msg.Recipient,
+Quantity = tostring(qty),
+Data = Colors.gray ..
+    "You transferred " ..
+    Colors.blue .. msg.Quantity .. Colors.gray .. " to " .. Colors.green .. msg.Recipient .. Colors.reset,
+}
+local creditNotice = {
+  Target = msg.Recipient,
+  Action = 'Credit-Notice',
+  Sender = msg.From,
+  Quantity = tostring(qty),
+  Data = Colors.gray ..
+      "You received " ..
+      Colors.blue ..
+      qty / 10 ^ Token_module.Denomination ..
+      Colors.gray .. " from " .. Colors.green .. msg.Recipient .. Colors.reset,
+}
+
+for tagName, tagValue in pairs(msg) do
+  -- Tags beginning with "X-" are forwarded
+  if string.sub(tagName, 1, 2) == "X-" then
+    debitNotice[tagName] = tagValue
+    creditNotice[tagName] = tagValue
+  end
+end
+      ao.send(debitNotice)
       -- Send Credit-Notice to the Recipient
-      ao.send({
-        Target = msg.Recipient,
-        Action = 'Credit-Notice',
-        Sender = msg.From,
-        Quantity = tostring(qty),
-        Data = Colors.gray ..
-            "You received " ..
-            Colors.blue ..
-            qty / 10 ^ Token_module.Denomination ..
-            Colors.gray .. " from " .. Colors.green .. msg.Recipient .. Colors.reset,
-        Note = msg.Note or nil
-      })
+      ao.send(creditNotice)
     end
   else
     ao.send({
