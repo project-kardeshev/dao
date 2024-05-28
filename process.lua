@@ -1,14 +1,14 @@
-local token_module = require(".token_module")
-local proposals_module = require(".proposals_module")
-local utils_module = require(".utils_module")
+local Token_module = require("token_module")
+local Proposals_module = require("proposals_module")
+local Utils_module = require("utils_module")
 
-local MEMEFRAME_ID = MEMEFRAME_ID or ""
+MEMEFRAME_ID = MEMEFRAME_ID or "Hkg1j_MCrJFF42xXSWYc6x8M-ERuOCFvey3QFTgLFsU"
 -- Token Handlers
 Handlers.add(
     "getTokenInfo",
     Handlers.utils.hasMatchingTag("Action", "Info"),
     function(msg)
-        token_module.infoHandler(msg)
+        Token_module.infoHandler(msg)
     end
 )
 
@@ -16,7 +16,7 @@ Handlers.add(
     "Balance",
     Handlers.utils.hasMatchingTag("Action", "Balance"),
     function(msg)
-        token_module.balanceHandler(msg)
+        Token_module.balanceHandler(msg)
     end
 )
 
@@ -24,7 +24,7 @@ Handlers.add(
     "TokenBalances",
     Handlers.utils.hasMatchingTag("Action", "TokenBalances"),
     function(msg)
-        token_module.balancesHandler(msg)
+        Token_module.balancesHandler(msg)
     end
 )
 
@@ -32,7 +32,7 @@ Handlers.add(
     "Transfer",
     Handlers.utils.hasMatchingTag("Action", "Transfer"),
     function(msg)
-        token_module.transferHandler(msg)
+        Token_module.transferHandler(msg)
     end
 )
 
@@ -46,7 +46,7 @@ Handlers.add(
         end
     end,
     function(msg)
-        token_module.Mint(msg)
+        Token_module.Mint(msg)
     end
 )
 
@@ -60,7 +60,7 @@ Handlers.add(
         end
     end,
     function(msg)
-        token_module.selfMintHandler(msg)
+        Token_module.selfMintHandler(msg)
     end
 )
 
@@ -72,9 +72,9 @@ Handlers.add(
     Handlers.utils.hasMatchingTag("Action", "Propose"),
     function(msg)
         print("This handler was triggered")
-        proposals_module.initiateProposal(msg)
+        Proposals_module.initiateProposal(msg)
 
-        local status, err = pcall(proposals_module.evaluateProposals, msg["Block-Height"])
+        local status, err = pcall(Proposals_module.evaluateProposals, msg["Block-Height"])
         if not status then
             print("Error in evaluateProposals: " .. err)
         end
@@ -86,12 +86,12 @@ Handlers.add(
     "Vote",
     Handlers.utils.hasMatchingTag("Action", "Vote"),
     function(msg)
-        local statusVote, errVote = pcall(proposals_module.vote, msg)
+        local statusVote, errVote = pcall(Proposals_module.vote, msg)
         if not statusVote then
             print("Error in voting: " .. errVote)
         end
 
-        local statusEvaluate, errEvaluate = pcall(proposals_module.evaluateProposals, msg["Block-Height"])
+        local statusEvaluate, errEvaluate = pcall(Proposals_module.evaluateProposals, msg["Block-Height"])
         if not statusEvaluate then
             print("Error in evaluating proposals: " .. errEvaluate)
         end
@@ -103,8 +103,8 @@ Handlers.add(
     "GetProposals",
     Handlers.utils.hasMatchingTag("Action", "GetProposals"),
     function(msg)
-        proposals_module.evaluateProposals(msg["Block-Height"])
-        proposals_module.getProposals(msg)
+        Proposals_module.evaluateProposals(msg["Block-Height"])
+        Proposals_module.getProposals(msg)
     end
 )
 
@@ -114,7 +114,7 @@ Handlers.add(
     "Subscribe",
     Handlers.utils.hasMatchingTag("Action", "Subscribe"),
     function(msg)
-        utils_module.addSubscriber(msg)
+        Utils_module.addSubscriber(msg)
     end
 )
 
@@ -122,6 +122,6 @@ Handlers.add(
     "Unsubscribe",
     Handlers.utils.hasMatchingTag("Action", "Unsubscribe"),
     function(msg)
-        utils_module.removeSubscriber(msg)
+        Utils_module.removeSubscriber(msg)
     end
 )
